@@ -6,16 +6,10 @@ from transformers import WhisperProcessor, WhisperForConditionalGeneration
 from torch.utils.data import DataLoader, IterableDataset
 from dataclasses import dataclass
 from typing import List, Dict, Union
-from dotenv import load_dotenv
+from config.hf_config import hf_read_login
 
-load_dotenv() 
-
-# 1. Login vào Hugging Face
-def login_hugging_face(token: str) -> None:
-    login(token=token)
-
-token = os.getenv("HUGGING_FACE_TOKEN")
-login_hugging_face(token)
+# Login hugging face
+hf_read_login()
 print('We are logged in to Hugging Face now!')
 
 # 2. Load dữ liệu dạng stream
