@@ -5,10 +5,13 @@ import torchaudio
 import numpy as np
 import shutil
 from concurrent.futures import ThreadPoolExecutor
+from config.hf_config import hf_read_login
+
+hf_read_login()
 
 # Load mô hình và processor
 # checkpoint_path = "./whisper-small-vn-streaming/checkpoint-step-2300"
-checkpoint_path = "./whisper-small-vn-streaming/checkpoint-step-2300"
+checkpoint_path = "DoanNgocHieu/think_flow" 
 processor = WhisperProcessor.from_pretrained(checkpoint_path)
 model = WhisperForConditionalGeneration.from_pretrained(checkpoint_path)
 
