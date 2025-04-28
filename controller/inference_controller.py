@@ -6,10 +6,8 @@ import numpy as np
 import shutil
 from concurrent.futures import ThreadPoolExecutor
 
-
-
 # Load mô hình và processor
-# checkpoint_path = "./whisper-small-vn-streaming/checkpoint-step-1700"
+# checkpoint_path = "./whisper-small-vn-streaming/checkpoint-step-2300"
 checkpoint_path = "./whisper-small-vn-streaming/checkpoint-step-2300"
 processor = WhisperProcessor.from_pretrained(checkpoint_path)
 model = WhisperForConditionalGeneration.from_pretrained(checkpoint_path)
@@ -53,7 +51,7 @@ def transcribe_audio_parallel(audio_path, segment_duration=15, max_workers=5):
 
 # if __name__ == "__main__":
 #     # Test transcribe
-#     test_audio_path = "E:\\CAPTONE2\\Audio_train\\audio_giong_hue_1.mp3"  # Đường dẫn tới file audio để test
+#     test_audio_path = "D:\\Audio_train\\audio_giong_hue_1.mp3"  # Đường dẫn tới file audio để test
 #     transcripts = transcribe_audio_parallel(test_audio_path)
 #     print("Transcription result:")
 #     print(transcripts)
