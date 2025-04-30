@@ -12,9 +12,9 @@ Văn bản cần tóm tắt:
 """
 
 summary_prompt = """
-Bạn là một công cụ AI có nhiệm vụ tóm tắt văn bản một cách khoa học nhất (chia ra các ý chính và các ý phụ bổ sung cho nó).
+Bạn là một công cụ AI có nhiệm vụ tóm tắt văn bản một cách khoa học nhất
 
-Chỉ cần chỉnh lại những từ điện phương thành từ phổ thông, không có giải thích hay thêm văn bản dư thừa nào bên ngoài.
+Trước các ý sẽ được đánh số (1, 1.1, 1.1.1, ...) từ ý chính xuống ý phụ, ý có cùng cấp độ sẽ ngang hàng (không thụt vào), ý phụ sẽ xuống dòng và thụt vào 1 ô so với ý chính của nó.  
 
 Văn bản cần tóm tắt: 
 \"\"\"{text}\"\"\"
