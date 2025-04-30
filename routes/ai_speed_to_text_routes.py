@@ -6,7 +6,7 @@ from flask import Blueprint, request, jsonify
 from controller.text_to_mindmap_controller import mindmap_and_structure 
 from services.openai_utils import summarize_to_text_model 
 from controller.inference_controller import transcribe_audio_parallel
-from controller.audios_to_transcrips import transcribe_multiple_audios, transcribe_from_an_audio
+from controller.audios_to_transcrips import transcribe_multiple_audios, transcribe_from_an_audio, transcribe_from_an_audio_test
 
 summary_routes = Blueprint('summary_routes', __name__)
 
@@ -212,7 +212,57 @@ def summary_from_all_transcript_audios():
 
     try:
         summary_result = summarize_to_text_model(all_text_audio)
-        return jsonify({"summary_transcript_audios": summary_result})
+        return jsonify({"summary_all_transcript_audios": summary_result})
+    except Exception:
+        return jsonify({
+            "status": 500,
+            "message": "Không thể phân tích phản hồi từ AI."
+        }), 500
+    
+# 
+#  Summary từ tất cả transcrip audios và text lớn 
+# 
+@summary_routes.route('/summary_note_from_all_text', methods=['POST'])
+def summary_note_from_all_text():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "status": 400,
+            "message": "Thiếu dữ liệu trong request body."
+        }), 400
+
+    if "text" not in data:
+        return jsonify({
+            "status": 400,
+            "message": "Thiếu trường 'text' trong request body."
+        }), 400
+
+    if "list_transcrip_text" not in data:
+        return jsonify({
+            "status": 400,
+            "message": "Thiếu trường 'list_transcrip_text' trong request body."
+        }), 400
+
+    if not isinstance(data["list_transcrip_text"], list):
+        return jsonify({
+            "status": 400,
+            "message": "'list_transcrip_text' phải là dạng danh sách (list)."
+        }), 400
+
+    # Tập hợp tất cả các text
+    all_text_audio = "".join(data["list_transcrip_text"])
+    full_text = data["text"] + " " + all_text_audio
+
+    if not full_text:
+        return jsonify({
+            "status": 400,
+            "message": "Không có nội dung để xử lý (cả text và audio đều trống)."
+        }), 400
+
+    try:
+        summary_result = summarize_to_text_model(full_text)
+        return jsonify({"summary_from_all_text": summary_result})
     except Exception:
         return jsonify({
             "status": 500,
@@ -316,8 +366,8 @@ def list_transcripts_from_audios():
 # 
 # Đưa ra transcript từ một audio
 # 
-@summary_routes.route("/transcripts_from_an_audio", methods=["POST"])
-def transcripts_from_an_audio():
+@summary_routes.route("/transcript_from_an_audio", methods=["POST"])
+def transcript_from_an_audio():
     start_time = time.time()
 
     file = request.files.get("file")
@@ -333,6 +383,40 @@ def transcripts_from_an_audio():
 
         # Transcribe 1 audio
         transcript = transcribe_from_an_audio(tmp_path)
+
+    finally:
+        # Xóa file tạm
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+    elapsed_time = time.time() - start_time
+    print(f"⏱️ Thời gian hoàn thành: {elapsed_time:.2f} giây")
+
+    return jsonify({
+        "transcript": transcript,
+        "time_taken_sec": round(elapsed_time, 2)
+    })
+
+# 
+# Đưa ra transcript từ một audio (ban test) 
+# 
+@summary_routes.route("/transcript_from_an_audio_test", methods=["POST"])
+def transcript_from_an_audio_test():
+    start_time = time.time()
+
+    file = request.files.get("file")
+    if file is None:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    try:
+        # Lưu tạm 1 các file
+        suffix = os.path.splitext(file.filename)[-1] or ".tmp"
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            file.save(tmp.name)
+            tmp_path = tmp.name
+
+        # Transcribe 1 audio
+        transcript = transcribe_from_an_audio_test(tmp_path)
 
     finally:
         # Xóa file tạm
